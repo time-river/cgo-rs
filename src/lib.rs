@@ -420,15 +420,26 @@ impl std::fmt::Display for Error {
 }
 
 fn get_cc() -> PathBuf {
-    cc::Build::new().get_compiler().path().to_path_buf()
+    #[cfg(not( target_os = "windows" ))]
+    return cc::Build::new().get_compiler().path().to_path_buf();
+    #[cfg( target_os = "windows" )]
+    return cc::Build::new().target("x86_64-pc-windows-gnu").get_compiler().path().to_path_buf();
 }
 
 fn get_cxx() -> PathBuf {
-    cc::Build::new()
-        .cpp(true)
-        .get_compiler()
-        .path()
-        .to_path_buf()
+    #[cfg(not( target_os = "windows" ))]
+    return cc::Build::new()
+            .cpp(true)
+            .get_compiler()
+            .path()
+            .to_path_buf();
+    #[cfg( target_os = "windows" )]
+    return cc::Build::new()
+            .cpp(true)
+            .target("x86_64-pc-windows-gnu")
+            .get_compiler()
+            .path()
+            .to_path_buf();
 }
 
 fn goarch_from_env() -> Result<String, Error> {
